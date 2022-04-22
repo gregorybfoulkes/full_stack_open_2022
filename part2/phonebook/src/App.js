@@ -5,18 +5,18 @@ const App = () => {
   const [newName, setNewName] = useState('')
 
   const handleNameChange = (event) => {
-    console.log(event.target.value)
     setNewName(event.target.value)
   }
 
   const addPerson = (event) => {
     event.preventDefault()
-    console.log(persons)
     const newPerson = {
       name:newName
     }
-
     setPersons(persons.concat(newPerson))
+    if(persons.includes(persons)){
+      console.log('contains name')
+    }
     setNewName('')
     console.log('button clicked', newName)
   }
