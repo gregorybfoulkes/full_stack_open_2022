@@ -11,6 +11,7 @@ const App = () => {
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
   const [message, setMessage] = useState('');
+  const [newFilter, setNewFilter] = useState('');
 
   const handleNameChange = (event) => {
     console.log(event.target.value)
@@ -20,10 +21,6 @@ const App = () => {
   const handleNumberChange = (event) => {
     console.log(event.target.value)
     setNewNumber(event.target.value)
-  }
-
-  const filterNames = () => {
-    persons.filter(person => person.name)
   }
 
   const addPerson = (event) => {
@@ -54,12 +51,23 @@ const App = () => {
    
   }
 
+  const filterNames = (event) => {
+    setNewFilter(event.target.value)
+    console.log(newFilter)
+    let filteredPerson = persons.filter(person => person.name.match(newFilter))
+    console.log(filteredPerson)
+    setPersons(filteredPerson)
+  }
+
   return (
     <div>
       <h2>Phonebook</h2>
-      <div>
-          search names: <input value={newName} onChange={filterNames}/>
+       
+        <div>
+          search names: <input value={newFilter} onChange={filterNames}/>
         </div>
+        <button onClick={filterNames}>Search</button>
+     
       <form onSubmit={addPerson}>
         <div>
           name: <input value={newName} onChange={handleNameChange}/>
