@@ -66,20 +66,23 @@ const App = () => {
         <div>
           search names: <input value={newFilter} onChange={filterNames}/>
         </div>
-        <button onClick={filterNames}>Search</button>
-     
-      <form onSubmit={addPerson}>
+        
         <div>
-          name: <input value={newName} onChange={handleNameChange}/>
-        </div>
-        <div>
-          number: <input value={newNumber} onChange={handleNumberChange} />
-        </div>
-        <div>
-          <button type="submit" >add</button>
-        </div>
-        <div>debug: {newName}</div>
-      </form>
+          <h2>Add a new</h2>
+          <form onSubmit={addPerson}>
+            <div>
+              name: <input value={newName} onChange={handleNameChange}/>
+            </div>
+            <div>
+              number: <input value={newNumber} onChange={handleNumberChange} />
+            </div>
+            <div>
+              <button type="submit" >add</button>
+            </div>
+          </form>
+        </div>     
+      
+
       <h2>Numbers</h2>
         <div>{persons.map(person => <p key={person.name}>{person.name} {person.number}</p>)}</div>
       <h2>{message}</h2>
