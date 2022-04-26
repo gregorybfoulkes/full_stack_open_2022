@@ -16,9 +16,7 @@ function App() {
     axios
       .get('https://restcountries.com/v3.1/all')
       .then(response => {
-        console.log('promise fulfilled')
         setAllCountries(response.data)
-        console.log(response.data)
       })
   }, [])
 
@@ -36,7 +34,7 @@ function App() {
 
     <div>
       <Filter newFilter={newFilter} filterCountries={filterCountries}/>
-      <Country countries={countries}/>
+      <Country countries={countries} setCountries={setCountries}/>
     </div>
     
   );
