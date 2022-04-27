@@ -4,6 +4,7 @@ import { useState,useEffect } from 'react'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
+import personService from './services/personservice'
 
 const App = () => {
 
@@ -14,17 +15,11 @@ const App = () => {
   const [newFilter, setNewFilter] = useState('');
 
   useEffect(() => {
-    console.log('effect')
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        console.log('promise fulfilled')
-        setPersons(response.data)
-      })
+    personService.allPersons()
+    .then(allEntries => setPersons(allEntries))
   }, [])
 
   const handleNameChange = (event) => {
-    console.log(event.target.value)
     setNewName(event.target.value)
   };
 
@@ -34,7 +29,6 @@ const App = () => {
   }
 
   const addPerson = (event) => {
-    
     event.preventDefault()
     
     const newPerson = {
@@ -46,12 +40,10 @@ const App = () => {
     let checkName = persons.some(person =>  person.name === newPerson.name)
     
     if(checkName){
-      
       setMessage(`${newName} is already added to phonebook`)
-
     }else{
-      
-      setPersons(persons.concat(newPerson))
+      personService.addPerson(newPerson)
+      .then(setPersons(persons.concat(newPerson)))
       setNewName('')
       setNewNumber('')
       setMessage('')
@@ -61,10 +53,19 @@ const App = () => {
 
   const filterNames = (event) => {
     setNewFilter(event.target.value)
-    console.log(newFilter)
     let filteredPerson = persons.filter(person => person.name.match(newFilter))
-    console.log(filteredPerson)
     setPersons(filteredPerson)
+  }
+
+  const deleteEntry = (id) => {
+    
+    let filteredPerson = persons.filter(person => person.id === id)
+    
+    if(window.confirm(`Delete ${filteredPerson[0].name} ?`)){
+      personService.deletePerson(filteredPerson[0].id)
+      .then(setPersons(persons.filter(persons => persons.id !== id )))
+    }
+   
   }
 
   return (
@@ -74,7 +75,7 @@ const App = () => {
       <h2>Add a new</h2>
       <PersonForm newName={newName} newNumber={newNumber} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange} addPerson={addPerson}/>
       <h2>Numbers</h2>
-      <Persons persons={persons} />
+      <Persons persons={persons} deleteEntry={deleteEntry} />
       <h2>{message}</h2>
     </div>
   )
