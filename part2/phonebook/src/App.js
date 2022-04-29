@@ -1,10 +1,11 @@
 import React from 'react';
-import axios from 'axios';
 import { useState,useEffect } from 'react'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
+import Notification from './components/Notification'
 import personService from './services/personservice'
+import './index.css'
 
 const App = () => {
 
@@ -24,29 +25,59 @@ const App = () => {
   };
 
   const handleNumberChange = (event) => {
-    console.log(event.target.value)
     setNewNumber(event.target.value)
   }
 
   const addPerson = (event) => {
     event.preventDefault()
+
+    const person = persons.filter(person => person.name === newName)
+    
+    const updatedPerson = {...person[0],number:newNumber}
     
     const newPerson = {
       name:newName,
       number:newNumber,
-      id:persons.length +1
+      //id:persons.length +1
     }
 
     let checkName = persons.some(person =>  person.name === newPerson.name)
     
     if(checkName){
-      setMessage(`${newName} is already added to phonebook`)
+      if(window.confirm(`${newName} is already added to phonebook, replace old number with new on ?`)){
+        
+        personService.update(updatedPerson.id, updatedPerson)
+        .then( returnPerson => {
+          setPersons(persons.map(allPersons => allPersons.id !== updatedPerson.id ? allPersons: returnPerson))
+          setMessage(`${newName} was updated`)
+          setTimeout(() => {
+            setMessage('')
+          }, 5000)
+        }).catch(error => {
+          console.log(error)
+          setPersons(persons.filter(person => person.id !== updatedPerson.id))
+            setNewName('')
+            setNewNumber('')
+            setMessage(
+              `[ERROR] ${updatedPerson.name} was already deleted from server`
+            )
+            setTimeout(() => {
+              setMessage('')
+            }, 5000)
+        })
+      }
+      
     }else{
       personService.addPerson(newPerson)
-      .then(setPersons(persons.concat(newPerson)))
-      setNewName('')
-      setNewNumber('')
-      setMessage('')
+      .then( returnPerson => {
+        setPersons(persons.concat(returnPerson))
+        setMessage(`${newPerson.name} was added`)
+        setNewName('')
+        setNewNumber('')
+        setTimeout(() => {
+          setMessage('')
+        }, 5000)
+      })
     }
    
   }
@@ -76,7 +107,7 @@ const App = () => {
       <PersonForm newName={newName} newNumber={newNumber} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange} addPerson={addPerson}/>
       <h2>Numbers</h2>
       <Persons persons={persons} deleteEntry={deleteEntry} />
-      <h2>{message}</h2>
+      <Notification  message={message}/>
     </div>
   )
 
