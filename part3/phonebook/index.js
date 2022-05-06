@@ -1,7 +1,8 @@
 const express = require('express')
-const app = express()
+var morgan = require('morgan')
+const cors = require('cors')
 
-app.use(express.json())
+const app = express()
 
 let persons = [
     { 
@@ -26,7 +27,25 @@ let persons = [
     }
 ]
 
+
+app.use(express.static('build'))
+app.use(cors())
+app.use(express.json())
+
+
+app.use(morgan(function (tokens, req, res) {
+  return [
+    tokens.method(req, res),
+    tokens.url(req, res),
+    tokens.status(req, res),
+    tokens.res(req, res, 'content-length'), '-',
+    tokens['response-time'](req, res), 'ms',
+    JSON.stringify(req.body)
+  ].join(' ')
+}))
+
 app.get('/api/persons', (request, response) => {
+    console.log(request.body)
     response.json(persons)
   })
 
@@ -58,13 +77,12 @@ const generateId = () => {
 
 app.post('/api/persons', (request, response) => {
   const body = request.body
-  console.log(body)
+
   if (!body.name || !body.number) {
     return response.status(400).json({ 
       error: 'content missing' 
     })
   }
-  console.log(persons.includes(body.name))
   if(persons.some(person => person.name === body.name)){
     return response.status(400).json({ 
       error: 'name must be unique' 
@@ -78,14 +96,15 @@ app.post('/api/persons', (request, response) => {
   }
 
   persons = persons.concat(person)
-  console.log(persons)
   response.json(persons)
 })
 
 app.delete('/api/info/:id', (request, response) => {
+  
   const id = Number(request.params.id)
   persons = persons.filter(note => note.id !== id)
   console.log(persons)
+  response.json(persons)
   response.status(204).end()
 })
 
